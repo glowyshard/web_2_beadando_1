@@ -1,0 +1,104 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image: url('media/bakery.avif'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Arial', sans-serif;
+}
+
+.content-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    margin: auto; /* középre igazítás */
+    margin-top: 30px; /* Külső tér a fejléctől */
+    border-radius: 40px;
+    flex: 1; /* Az összes rendelkezésre álló teret kitölti */
+}       
+
+.margin-p
+{
+    margin-left: 300px;
+    margin-right:300px;
+}
+
+p {
+    margin: 8px 8px; 
+    text-align: justify;
+}
+
+p strong {
+    font-weight: bold; 
+    display: block; 
+    margin-bottom: 3px;
+    white-space: nowrap;
+}
+
+.dessert-container {
+    margin-left: 20px;
+    margin-right: 40px;
+    margin-bottom: 30px;
+}
+
+.dessert-h2 {
+    margin-top: 15px;
+    margin-left: 10px;
+}
+
+    .left-column {
+        flex: 1;
+        max-width: 600px;
+        margin-right: 600px;
+        margin-top:30px;
+        margin-bottom:5px;
+        background-color: #e0e0ef;
+        border-radius: 60px;
+        
+    }
+
+    .right-column {
+        flex: 1;
+        max-width: 600px;
+        margin-left: 600px;
+        margin-top:30px;
+        margin-bottom:5px;
+        background-color: #e0e0ef;
+        border-radius: 60px;
+    }
+
+.h-center{
+
+    text-align: center;
+    text-decoration: underline;
+}
+
+.nyit
+{
+    margin-left: 175px;
+    margin-right:100px ;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.nyit-caution
+{
+    margin-left: 86px;
+    margin-right:100px ;
+    color: red;
+}
+
+.center-form {
+    background-color: #e0e0ef;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px; 
+    margin-left:400PX;
+    margin-right:400px;
+    border-radius: 90px;
+}
