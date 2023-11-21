@@ -1,5 +1,11 @@
 <?php
     require_once('config.inc.php');
+
+    // Check if the user is logged in
+    $loggedInUser = ""; // Default empty value
+    if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']) {
+        $loggedInUser = "Logged in: " . $_SESSION['family_name'] . " " . $_SESSION['surname'] . " (" . $_SESSION['login_name'] . ")";
+    }
 ?>
 
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -26,7 +32,13 @@
 
     <!-- Button on the far right -->
     <div class="ml-auto">
-    <a href="/web_2_beadando_1-main/fiok.php" class="btn btn-primary">Login</a>
+        <?php if ($loggedInUser === "") { // User not logged in ?>
+            <a href="/web_2_beadando_1-main/fiok.php" class="btn btn-primary">Login</a>
+        <?php } else { // User logged in ?>
+            <span><?php echo $loggedInUser; ?></span>
+            <a href="/web_2_beadando_1-main/logout.php" class="btn btn-danger">Exit</a>
+        <?php } ?>
     </div>
   </div>
 </nav>
+

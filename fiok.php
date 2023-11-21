@@ -1,7 +1,80 @@
 <?php
+require_once('config.inc.php');
+
 
 class UserModel {
-    // adatbázis helye
+    private $conn;
+
+    public function __construct() {
+        $this->conn = new mysqli('localhost', 'root', '', 'users_db');
+
+        if ($this->conn->connect_error) {
+            die("Connection failed: " . $this->conn->connect_error);
+        }
+    }
+
+    public function registerUser($username, $password, $keresztnev, $vezeteknev) {
+        // Check if the username already exists
+        if ($this->isUsernameTaken($username)) {
+            // Username is already taken, display a popup message
+            echo "<script>alert('Username is already taken. Please choose a different username.');</script>";
+            return false;
+        }
+
+        // Proceed with user registration
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        $stmt = $this->conn->prepare("INSERT INTO users (username, password, keresztnev, vezeteknev) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $username, $hashedPassword, $keresztnev, $vezeteknev);
+
+        $result = $stmt->execute();
+
+        $stmt->close();
+
+        return $result;
+    }
+
+    private function isUsernameTaken($username) {
+        $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+
+        // If count is greater than 0, the username is taken
+        return $count > 0;
+    }
+
+    public function loginUser($username, $password) {
+        $stmt = $this->conn->prepare("SELECT id, username, password, keresztnev, vezeteknev FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->bind_result($id, $username, $hashedPassword, $keresztnev, $vezeteknev);
+        $stmt->fetch();
+        $stmt->close();
+
+        if ($hashedPassword !== null && password_verify($password, $hashedPassword)) {
+            // Set session variables upon successful login
+            $_SESSION['logged_in'] = true;
+            $_SESSION['user_id'] = $id;
+            $_SESSION['login_name'] = $username;
+            $_SESSION['family_name'] = $keresztnev;
+            $_SESSION['surname'] = $vezeteknev;
+
+            return true; // Passwords match
+        } else {
+            return false; // Passwords do not match
+        }
+    }
+
+    public function logoutUser() {
+        // Unset all of the session variables
+        $_SESSION = array();
+
+        // Destroy the session
+        session_destroy();
+    }
 }
 
 class UserController {
@@ -11,14 +84,16 @@ class UserController {
         $this->model = $model;
     }
 
-    public function registerUser($username, $password) {
-        
-        return $this->model->registerUser($username, $password);
+    public function registerUser($username, $password, $keresztnev, $vezeteknev) {
+        return $this->model->registerUser($username, $password, $keresztnev, $vezeteknev);
     }
 
     public function loginUser($username, $password) {
-        
         return $this->model->loginUser($username, $password);
+    }
+
+    public function logoutUser() {
+        $this->model->logoutUser();
     }
 }
 
@@ -27,31 +102,45 @@ $controller = new UserController($model);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['register'])) {
-        
         $username = $_POST['registerUsername'];
         $password = $_POST['registerPassword'];
+        $keresztnev = $_POST['keresztnev'];
+        $vezeteknev = $_POST['vezeteknev'];
 
-        
-        $registrationSuccessful = $controller->registerUser($username, $password);
+        $registrationSuccessful = $controller->registerUser($username, $password, $keresztnev, $vezeteknev);
 
         if ($registrationSuccessful) {
-           
+            // Registration successful, add a script to trigger the switch to login
+            echo "<script>switchToLogin(); showLoginSuccessPopup();</script>";
         } else {
-           
+            
         }
     } elseif (isset($_POST['login'])) {
-        
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        
         $loginSuccessful = $controller->loginUser($username, $password);
 
         if ($loginSuccessful) {
-            
+            // Script for successful login popup and redirection
+            echo "<script>
+                    alert('Login successful!');
+                    window.location.href = '/web_2_beadando_1-main/index.php';
+                  </script>";
         } else {
-            // Login failed, handle accordingly
+            // Script for failed login popup
+            echo "<script>alert('Login failed!');</script>";
+            // Optionally, you can redirect to fiok.php after a short delay
+            echo "<script>
+                    setTimeout(function(){
+                        window.location.href = '/web_2_beadando_1-main/fiok.php';
+                    }, 2000); // 2000 milliseconds (2 seconds) delay
+                  </script>";
         }
+        
+    } elseif (isset($_POST['logout'])) {
+        // Handle logout
+        $controller->logoutUser();
     }
 }
 
@@ -62,21 +151,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    <style>
-        .center-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 50px; 
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">    
 </head>
 <body>
     <?php require_once("header.php")?>
 
-    <div class="container">
         <div class="center-form">
-            <h2>Belépés - The Sweet Oven</h2>
+            <h4>Belépés - The Sweet Oven</h4>
 
             <div id="loginForm">
                 <form method="post" action="" class="mb-3">
@@ -93,7 +174,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div id="registerForm" style="display: none;">
-                
                 <form method="post" action="" class="mb-3">
                     <div class="mb-3">
                         <label for="registerUsername" class="form-label">Username:</label>
@@ -103,27 +183,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="registerPassword" class="form-label">Password:</label>
                         <input type="password" class="form-control" id="registerPassword" name="registerPassword" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="keresztnev" class="form-label">Keresztnév:</label>
+                        <input type="text" class="form-control" id="keresztnev" name="keresztnev" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="vezeteknev" class="form-label">Vezetéknév:</label>
+                        <input type="text" class="form-control" id="vezeteknev" name="vezeteknev" required>
+                    </div>
                     <button type="submit" name="register" class="btn btn-primary">Register</button>
                 </form>
             </div>
 
-            <button onclick="toggleForms()" class="btn btn-secondary">Switch to Register</button>
+            <button onclick="toggleForms()" class="btn btn-secondary" id="toggleButton">Switch to Login</button>
         </div>
-    </div>
+    
 
     <script>
         function toggleForms() {
             var loginForm = document.getElementById("loginForm");
             var registerForm = document.getElementById("registerForm");
+            var toggleButton = document.getElementById("toggleButton");
 
             if (loginForm.style.display === "none") {
                 loginForm.style.display = "block";
                 registerForm.style.display = "none";
+                toggleButton.innerText = "Switch to Register";
             } else {
                 loginForm.style.display = "none";
                 registerForm.style.display = "block";
+                toggleButton.innerText = "Switch to Login";
             }
         }
+
     </script>
 
 </body>
