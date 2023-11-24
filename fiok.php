@@ -14,14 +14,14 @@ class UserModel {
     }
 
     public function registerUser($username, $password, $keresztnev, $vezeteknev) {
-        // Check if the username already exists
+        
         if ($this->isUsernameTaken($username)) {
-            // Username is already taken, display a popup message
+          
             echo "<script>alert('Username is already taken. Please choose a different username.');</script>";
             return false;
         }
 
-        // Proceed with user registration
+       
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         $stmt = $this->conn->prepare("INSERT INTO users (username, password, keresztnev, vezeteknev) VALUES (?, ?, ?, ?)");
@@ -42,7 +42,7 @@ class UserModel {
         $stmt->fetch();
         $stmt->close();
 
-        // If count is greater than 0, the username is taken
+        
         return $count > 0;
     }
 
@@ -55,24 +55,24 @@ class UserModel {
         $stmt->close();
 
         if ($hashedPassword !== null && password_verify($password, $hashedPassword)) {
-            // Set session variables upon successful login
+            
             $_SESSION['logged_in'] = true;
             $_SESSION['user_id'] = $id;
             $_SESSION['login_name'] = $username;
             $_SESSION['family_name'] = $keresztnev;
             $_SESSION['surname'] = $vezeteknev;
 
-            return true; // Passwords match
+            return true; 
         } else {
-            return false; // Passwords do not match
+            return false; 
         }
     }
 
     public function logoutUser() {
-        // Unset all of the session variables
+       
         $_SESSION = array();
 
-        // Destroy the session
+      
         session_destroy();
     }
 }
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $registrationSuccessful = $controller->registerUser($username, $password, $keresztnev, $vezeteknev);
 
         if ($registrationSuccessful) {
-            // Registration successful, add a script to trigger the switch to login
+       
             echo "<script>switchToLogin(); showLoginSuccessPopup();</script>";
         } else {
             
@@ -122,15 +122,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $loginSuccessful = $controller->loginUser($username, $password);
 
         if ($loginSuccessful) {
-            // Script for successful login popup and redirection
+        
             echo "<script>
                     alert('Login successful!');
                     window.location.href = '/web_2_beadando_1-main/index.php';
                   </script>";
         } else {
-            // Script for failed login popup
+          
             echo "<script>alert('Login failed!');</script>";
-            // Optionally, you can redirect to fiok.php after a short delay
+       
             echo "<script>
                     setTimeout(function(){
                         window.location.href = '/web_2_beadando_1-main/fiok.php';
@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
     } elseif (isset($_POST['logout'])) {
-        // Handle logout
+        
         $controller->logoutUser();
     }
 }
@@ -151,7 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">    
+    <link rel="stylesheet" href="style.css">   
+    <title>Login</title> 
 </head>
 <body>
     <?php require_once("header.php")?>

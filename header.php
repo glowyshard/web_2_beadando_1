@@ -2,7 +2,7 @@
     require_once('config.inc.php');
 
     // Check if the user is logged in
-    $loggedInUser = ""; // Default empty value
+    $loggedInUser = ""; 
     if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']) {
         $loggedInUser = "Logged in: " . $_SESSION['family_name'] . " " . $_SESSION['surname'] . " (" . $_SESSION['login_name'] . ")";
     }
@@ -30,7 +30,7 @@
       </ul>
     </div>
 
-    <!-- Button on the far right -->
+ 
     <div class="ml-auto">
         <?php if ($loggedInUser === "") { // User not logged in ?>
             <a href="/web_2_beadando_1-main/fiok.php" class="btn btn-primary">Login</a>
