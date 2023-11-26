@@ -1,7 +1,5 @@
 <?php require_once('config.inc.php');
 
-
-// models/OpinionModel.php
 class OpinionModel {
     private $conn;
 
@@ -31,7 +29,7 @@ class OpinionModel {
     }
 }
 
-// controllers/OpinionController.php
+
 class OpinionController {
     private $model;
 
@@ -76,26 +74,27 @@ $opinionController = new OpinionController($opinionModel);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['submitOpinion'])) {
-        $username = $_SESSION['login_name']; // Assuming user is logged in
+        $username = $_SESSION['login_name']; 
         $opinion_text = $_POST['opinion_text'];
         $opinionController->submitOpinion($username, $opinion_text);
     }
 }
 
-// views/opinions.php
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css"> 
+    <title>Véleményezés</title>
 </head>
 
 <body>
     <?php require_once("header.php"); ?>
     <div class="container d-flex align-items-center flex-column content-container">
         <h1>Hírlevél</h1>
-    <!-- Display opinions here -->
+   
     <?php $opinionController->showOpinions(); ?>
 
     <form class="text-center" method="post" action="">
